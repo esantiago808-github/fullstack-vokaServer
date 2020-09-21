@@ -1,52 +1,78 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const Activity = require('../models/activity');
 
 const activityRouter = express.Router();
 
 activityRouter.use(bodyParser.json());
 
 activityRouter.route('/')   
-.all((req, res, next) => {         
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/plain');
-    next();
+.get((req, res, next) => {
+    Activity.find()
+    .then(activities => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(activities);
+    })
+    .catch(err => next(err));
 })
-.get((req, res) => {
-    res.end('Will send all the activity records to you');
-})
-.post((req, res) => {
-    res.end(`Will add the activity: ${req.body.name} with description: ${req.body.description}`);
+.post((req, res, next) => {
+    Activity.create(req.body)
+    .then(activity => {
+        console.log('Activity Created ', activity);
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(activity);
+    })
+    .catch(err => next(err));
 })
 .put((req, res) => {
     res.statusCode = 403;
     res.end('PUT operation not supported on /activity');
 })
-.delete((req, res) => {
-    res.statusCode = 403;
-    res.end('DELETE operation not supported on /activity');
+.delete((req, res, next) => {
+    Activity.deleteMany()
+    .then(response => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(response);
+    })
+    .catch(err => next(err));
 });
 
 activityRouter.route('/:activityId')
-.all((req, res, next) => {         
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/plain');
-    next();
-})
-.get((req, res) => {
-    res.end(`Will send details of the activity: ${req.params.activityId} to you`);
+.get((req, res, next) => {
+    Activity.findById(req.params.activityId)
+    .then(activity => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(activity);
+    })
+    .catch(err => next(err));
 })
 .post((req, res) => {
     res.statusCode = 403;
     res.end(`POST operation not supported on /activity/${req.params.activityId}`);
 })
-.put((req, res) => {
-    res.write(`Updating the activity: ${req.params.activityId}\n`);
-    res.end(`Will update the activity: ${req.body.name}
-        with description: ${req.body.description}`);
+.put((req, res, next) => {
+    Activity.findByIdAndUpdate(req.params.activityId, {
+        $set: req.body
+    }, { new: true })
+    .then(activity => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(activity);
+    })
+    .catch(err => next(err));
 })
-.delete((req, res) => {
-    res.statusCode = 403;
-    res.end(`DELETE operation not supported on /activity/${req.params.activityId}`);
+.delete((req, res, next) => {
+    Activity.findByIdAndDelete(req.params.activityId)
+    .then(response => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(response);
+    })
+    .catch(err => next(err));
 });
 
 module.exports = activityRouter;

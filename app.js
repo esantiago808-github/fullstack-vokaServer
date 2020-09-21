@@ -10,6 +10,20 @@ const activityRouter = require('./routes/activityRouter');
 const bulletinRouter = require('./routes/bulletinRouter');
 const userRouter = require('./routes/userRouter');
 
+const mongoose = require('mongoose');
+
+const url = 'mongodb://localhost:27017/nucampsite-voka';
+const connect = mongoose.connect(url, {
+    useCreateIndex: true,
+    useFindAndModify: false,
+    useNewUrlParser: true, 
+    useUnifiedTopology: true
+});
+
+connect.then(() => console.log('Connected correctly to server'), 
+    err => console.log(err)
+);
+
 var app = express();
 
 // view engine setup
@@ -24,7 +38,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/activities', activityRouter);
+app.use('/activity', activityRouter);
 app.use('/bulletins', bulletinRouter);
 
 
