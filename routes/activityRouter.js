@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const Activity = require('../models/activity');
+const authenticate = require('../authenticate');
 
 const activityRouter = express.Router();
 
@@ -9,14 +10,14 @@ activityRouter.use(bodyParser.json());
 activityRouter.route('/')   
 .get((req, res, next) => {
     Activity.find()
-    .then(activities => {
+    .then(activity => {
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
-        res.json(activities);
+        res.json(activity);
     })
     .catch(err => next(err));
 })
-.post((req, res, next) => {
+.post(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Activity.create(req.body)
     .then(activity => {
         console.log('Activity Created ', activity);
@@ -26,11 +27,11 @@ activityRouter.route('/')
     })
     .catch(err => next(err));
 })
-.put((req, res) => {
+.put(authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
     res.end('PUT operation not supported on /activity');
 })
-.delete((req, res, next) => {
+.delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Activity.deleteMany()
     .then(response => {
         res.statusCode = 200;
@@ -40,7 +41,7 @@ activityRouter.route('/')
     .catch(err => next(err));
 });
 
-activityRouter.route('/:activityId')
+activityRouter.route('/:activityId')   
 .get((req, res, next) => {
     Activity.findById(req.params.activityId)
     .then(activity => {
@@ -50,11 +51,11 @@ activityRouter.route('/:activityId')
     })
     .catch(err => next(err));
 })
-.post((req, res) => {
+.post(authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
     res.end(`POST operation not supported on /activity/${req.params.activityId}`);
 })
-.put((req, res, next) => {
+.put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Activity.findByIdAndUpdate(req.params.activityId, {
         $set: req.body
     }, { new: true })
@@ -65,7 +66,7 @@ activityRouter.route('/:activityId')
     })
     .catch(err => next(err));
 })
-.delete((req, res, next) => {
+.delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Activity.findByIdAndDelete(req.params.activityId)
     .then(response => {
         res.statusCode = 200;

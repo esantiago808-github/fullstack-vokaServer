@@ -16,7 +16,7 @@ bulletinRouter.route('/')
     })
     .catch(err => next(err));
 })
-.post((req, res, next) => {
+.post(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Bulletin.create(req.body)
     .then(bulletin => {
         console.log('Bulletin Created ', bulletin);
@@ -26,11 +26,11 @@ bulletinRouter.route('/')
     })
     .catch(err => next(err));
 })
-.put((req, res) => {
+.put(authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
-    res.end('PUT operation not supported on /bulletins');
+    res.end('PUT operation not supported on /bulletin');
 })
-.delete((req, res, next) => {
+.delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Bulletin.deleteMany()
     .then(response => {
         res.statusCode = 200;
@@ -40,7 +40,7 @@ bulletinRouter.route('/')
     .catch(err => next(err));
 });
 
-bulletinRouter.route('/:bulletinId')
+bulletinRouter.route('/:bulletinId')   
 .get((req, res, next) => {
     Bulletin.findById(req.params.bulletinId)
     .then(bulletin => {
@@ -50,11 +50,11 @@ bulletinRouter.route('/:bulletinId')
     })
     .catch(err => next(err));
 })
-.post((req, res) => {
+.post(authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
-    res.end(`POST operation not supported on /bulletins/${req.params.bulletinId}`);
+    res.end(`POST operation not supported on /bulletin/${req.params.bulletinId}`);
 })
-.put((req, res, next) => {
+.put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Bulletin.findByIdAndUpdate(req.params.bulletinId, {
         $set: req.body
     }, { new: true })
@@ -65,7 +65,7 @@ bulletinRouter.route('/:bulletinId')
     })
     .catch(err => next(err));
 })
-.delete((req, res, next) => {
+.delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Bulletin.findByIdAndDelete(req.params.bulletinId)
     .then(response => {
         res.statusCode = 200;
