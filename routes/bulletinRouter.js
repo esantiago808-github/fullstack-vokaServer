@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const Bulletin = require('../models/bulletin');
+const authenticate = require('../authenticate');
 
 const bulletinRouter = express.Router();
 
@@ -16,7 +17,7 @@ bulletinRouter.route('/')
     })
     .catch(err => next(err));
 })
-.post(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+.post(authenticate.verifyUser, (req, res, next) => {
     Bulletin.create(req.body)
     .then(bulletin => {
         console.log('Bulletin Created ', bulletin);
@@ -54,7 +55,7 @@ bulletinRouter.route('/:bulletinId')
     res.statusCode = 403;
     res.end(`POST operation not supported on /bulletin/${req.params.bulletinId}`);
 })
-.put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+.put(authenticate.verifyUser, (req, res, next) => {
     Bulletin.findByIdAndUpdate(req.params.bulletinId, {
         $set: req.body
     }, { new: true })

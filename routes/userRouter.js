@@ -6,8 +6,6 @@ const bodyParser = require('body-parser');
 
 const router = express.Router();
 
-userRouter.use(bodyParser.json());
-
 router.get('/', authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
   User.find()
   .then(users => {

@@ -6,8 +6,8 @@ var cookieParser = require('cookie-parser');
 const passport = require('passport');
 const config = require('./config');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+const indexRouter = require('./routes/index');
+const userRouter = require('./routes/userRouter');
 const activityRouter = require('./routes/activityRouter');
 const bulletinRouter = require('./routes/bulletinRouter');
 
@@ -38,7 +38,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(passport.initialize());
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/users', userRouter);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
